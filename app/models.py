@@ -23,3 +23,203 @@ class UserRole(str, enum.Enum):
 class BookingStatus(str, enum.Enum):
     active = "active"
     cancelled = "cancelled"
+
+class User(Base):
+    __tablename__ = "users"
+
+
+    id: Mapped[int] = mapped_column(
+        Integer,
+        primary_key=True,
+        index=True,
+    )
+
+    username: Mapped[str] = mapped_column(
+        String(50),
+        unique=True,
+        nullable=False,
+    )
+
+    hashed_password: Mapped[str] = mapped_column(
+        String,
+        nullable=False,
+    )
+
+    role: Mapped[UserRole] = mapped_column(
+        Enum(UserRole),
+        default=UserRole.employee,
+        nullable=False,
+    )
+
+    created_at: Mapped[DateTime] = mapped_column(
+        DateTime,
+        server_default=func.now(),
+    )
+
+
+    bookings = relationship(
+        "Booking",
+        back_populates="user",
+    )
+
+class Room(Base):
+    __tablename__ = "rooms"
+
+
+    id: Mapped[int] = mapped_column(
+        Integer,
+        primary_key=True,
+    )
+
+
+    name: Mapped[str] = mapped_column(
+        String(100),
+        unique=True,
+        nullable=False,
+    )
+
+
+    description: Mapped[str | None] = mapped_column(
+        String,
+        nullable=True,
+    )
+
+
+    capacity: Mapped[int] = mapped_column(
+        Integer,
+        default=1,
+    )
+
+
+    created_at: Mapped[DateTime] = mapped_column(
+        DateTime,
+        server_default=func.now(),
+    )
+
+
+    slots = relationship(
+        "RoomSlot",
+        back_populates="room",
+    )
+
+
+    bookings = relationship(
+        "Booking",
+        back_populates="room",
+    )
+
+class RoomSlot(Base):
+    __tablename__ = "room_slots"
+
+
+    id: Mapped[int] = mapped_column(
+        Integer,
+        primary_key=True,
+    )
+
+
+    room_id: Mapped[int] = mapped_column(
+        ForeignKey("rooms.id"),
+        nullable=False,
+    )
+
+
+    start_time: Mapped[Time] = mapped_column(
+        Time,
+        nullable=False,
+    )
+
+
+    end_time: Mapped[Time] = mapped_column(
+        Time,
+        nullable=False,
+    )
+
+
+    room = relationship(
+        "Room",
+        back_populates="slots",
+    )
+
+
+    bookings = relationship(
+        "Booking",
+        back_populates="slot",
+    )
+
+class Booking(Base):
+    __tablename__ = "bookings"
+
+
+    id: Mapped[int] = mapped_column(
+        Integer,
+        primary_key=True,
+    )
+
+
+    user_id: Mapped[int] = mapped_column(
+        ForeignKey("users.id"),
+    )
+
+
+    room_id: Mapped[int] = mapped_column(
+        ForeignKey("rooms.id"),
+    )
+
+
+    slot_id: Mapped[int] = mapped_column(
+        ForeignKey("room_slots.id"),
+    )
+
+
+    booking_date: Mapped[Date] = mapped_column(
+        Date,
+        nullable=False,
+    )
+
+
+    status: Mapped[BookingStatus] = mapped_column(
+        Enum(BookingStatus),
+        default=BookingStatus.active,
+    )
+
+
+    created_at: Mapped[DateTime] = mapped_column(
+        DateTime,
+        server_default=func.now(),
+    )
+
+
+    cancelled_at: Mapped[DateTime | None] = mapped_column(
+        DateTime,
+        nullable=True,
+    )
+
+
+    user = relationship(
+        "User",
+        back_populates="bookings",
+    )
+
+
+    room = relationship(
+        "Room",
+        back_populates="bookings",
+    )
+
+
+    slot = relationship(
+        "RoomSlot",
+        back_populates="bookings",
+    )
+
+Index(
+    "uq_active_booking_room_slot_date",
+    Booking.room_id,
+    Booking.slot_id,
+    Booking.booking_date,
+    unique=True,
+    postgresql_where=text(
+        "status = 'active'"
+    ),
+)
