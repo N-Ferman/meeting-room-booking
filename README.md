@@ -2,6 +2,21 @@
 
 Сервис бронирования переговорных комнат для коворкинга.
 
+## Live Demo
+
+API is deployed on Render:
+
+https://meeting-room-booking-gyss.onrender.com/
+
+Swagger documentation:
+
+https://meeting-room-booking-gyss.onrender.com/docs
+
+Demo users:
+
+- employee / employee123
+- admin / admin123
+
 ## Возможности
 
 - JWT-аутентификация по логину и паролю.
