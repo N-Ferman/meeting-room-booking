@@ -149,6 +149,16 @@ class RoomSlot(Base):
 
 class Booking(Base):
     __tablename__ = "bookings"
+    __table_args__ = (
+        Index(
+            "uq_active_booking_room_slot_date",
+            "room_id",
+            "slot_id",
+            "booking_date",
+            unique=True,
+            postgresql_where=text("status = 'active'"),
+        ),
+    )
 
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
@@ -162,14 +172,3 @@ class Booking(Base):
     user = relationship("User", back_populates="bookings")
     room = relationship("Room", back_populates="bookings")
     slot = relationship("RoomSlot", back_populates="bookings")
-
-__table_args__ = (
-    Index(
-        "uq_active_booking_room_slot_date",
-        "room_id",
-        "slot_id",
-        "booking_date",
-        unique=True,
-        postgresql_where=text("status = 'active'"),
-    ),
-)
