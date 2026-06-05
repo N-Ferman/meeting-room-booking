@@ -7,4 +7,4 @@ services:
       POSTGRES_USER: booking_user
       POSTGRES_PASSWORD: booking_password
     ports:
-      - "55432:5432"
+      - "5433:5432"
