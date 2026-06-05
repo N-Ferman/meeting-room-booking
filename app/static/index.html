@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Meeting Room Booking</title>
+    <link rel="stylesheet" href="/static/styles.css">
+  </head>
+  <body>
+    <main class="shell">
+      <section class="topbar">
+        <div>
+          <h1>Бронирование переговорных</h1>
+          <p>Демо-интерфейс для проверки API сервиса.</p>
+        </div>
+        <div class="session">
+          <span id="sessionStatus">Не выполнен вход</span>
+          <button id="logoutButton" class="ghost" type="button" disabled>Выйти</button>
+        </div>
+      </section>
+
+      <section class="panel login-panel" aria-labelledby="loginTitle">
+        <h2 id="loginTitle">Вход</h2>
+        <form id="loginForm" class="login-grid">
+          <label>
+            Логин
+            <select id="username">
+              <option value="employee">employee</option>
+              <option value="employee2">employee2</option>
+              <option value="admin">admin</option>
+            </select>
+          </label>
+          <label>
+            Пароль
+            <input id="password" type="password" value="employee123" autocomplete="current-password">
+          </label>
+          <button type="submit">Войти</button>
+        </form>
+      </section>
+
+      <section class="toolbar">
+        <label>
+          Дата
+          <input id="bookingDate" type="date">
+        </label>
+        <button id="refreshButton" type="button">Обновить</button>
+        <span id="message" role="status"></span>
+      </section>
+
+      <section class="content-grid">
+        <section class="panel" aria-labelledby="availabilityTitle">
+          <div class="panel-head">
+            <h2 id="availabilityTitle">Доступность комнат</h2>
+            <span id="roomsCount"></span>
+          </div>
+          <div id="availability" class="availability empty-state">
+            Войдите, чтобы увидеть расписание.
+          </div>
+        </section>
+
+        <section class="panel" aria-labelledby="bookingsTitle">
+          <div class="panel-head">
+            <h2 id="bookingsTitle">Мои бронирования</h2>
+            <button id="reloadBookingsButton" class="ghost" type="button">Обновить</button>
+          </div>
+          <div id="myBookings" class="booking-list empty-state">
+            Пока нет данных.
+          </div>
+        </section>
+      </section>
+    </main>
+
+    <script src="/static/app.js"></script>
+  </body>
+</html>

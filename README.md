@@ -40,6 +40,12 @@ docker compose up --build
 http://localhost:8000
 ```
 
+Демо-фронтенд:
+
+```text
+http://localhost:8000/
+```
+
 Документация OpenAPI:
 
 ```text
@@ -101,6 +107,9 @@ poetry run uvicorn app.main:app --reload
 ```
 
 ## Примеры запросов
+
+Основные сценарии можно проверить через демо-фронтенд на `http://localhost:8000/`
+или напрямую через API.
 
 Получить JWT-токен:
 
