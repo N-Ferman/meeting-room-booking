@@ -1,12 +1,21 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from datetime import date
+
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 
 from app.dependencies import get_current_user, get_db, require_admin
-from app.models import Room, RoomSlot, User
-from app.schemas import RoomCreate, RoomRead, RoomSlotCreate, RoomSlotRead
+from app.models import Booking, BookingStatus, Room, RoomSlot, User
+from app.schemas import (
+    RoomAvailabilityRead,
+    RoomCreate,
+    RoomRead,
+    RoomSlotCreate,
+    RoomSlotRead,
+)
 
 
 router = APIRouter(prefix="/rooms", tags=["Rooms"])
+
 
 @router.get("", response_model=list[RoomRead])
 def get_rooms(
@@ -14,6 +23,60 @@ def get_rooms(
     db: Session = Depends(get_db),
 ):
     return db.query(Room).order_by(Room.id).all()
+
+
+@router.get("/availability", response_model=list[RoomAvailabilityRead])
+def get_rooms_availability(
+    requested_date: date = Query(alias="date"),
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    rooms = db.query(Room).order_by(Room.id).all()
+
+    active_bookings = (
+        db.query(Booking)
+        .filter(
+            Booking.booking_date == requested_date,
+            Booking.status == BookingStatus.active,
+        )
+        .all()
+    )
+
+    bookings_by_room_and_slot = {
+        (booking.room_id, booking.slot_id): booking
+        for booking in active_bookings
+    }
+
+    result = []
+
+    for room in rooms:
+        room_slots = sorted(room.slots, key=lambda slot: slot.start_time)
+
+        slots = []
+
+        for slot in room_slots:
+            booking = bookings_by_room_and_slot.get((room.id, slot.id))
+
+            slots.append(
+                {
+                    "slot_id": slot.id,
+                    "start_time": slot.start_time,
+                    "end_time": slot.end_time,
+                    "is_available": booking is None,
+                    "booking_id": booking.id if booking else None,
+                }
+            )
+
+        result.append(
+            {
+                "room_id": room.id,
+                "room_name": room.name,
+                "slots": slots,
+            }
+        )
+
+    return result
+
 
 @router.get("/{room_id}", response_model=RoomRead)
 def get_room(
@@ -30,6 +93,7 @@ def get_room(
         )
 
     return room
+
 
 @router.post("", response_model=RoomRead, status_code=status.HTTP_201_CREATED)
 def create_room(
@@ -56,6 +120,7 @@ def create_room(
     db.refresh(room)
 
     return room
+
 
 @router.post(
     "/{room_id}/slots",

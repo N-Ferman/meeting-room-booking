@@ -43,3 +43,16 @@ class RoomSlotRead(BaseModel):
 
     class Config:
         from_attributes = True
+
+class AvailabilitySlotRead(BaseModel):
+    slot_id: int
+    start_time: time
+    end_time: time
+    is_available: bool
+    booking_id: int | None = None
+
+
+class RoomAvailabilityRead(BaseModel):
+    room_id: int
+    room_name: str
+    slots: list[AvailabilitySlotRead]
