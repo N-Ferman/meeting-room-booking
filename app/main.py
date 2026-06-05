@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from app.routers import auth, rooms
+from app.routers import auth, bookings, rooms
 
 app = FastAPI(title="Meeting Room Booking Service")
 
@@ -10,3 +10,4 @@ def health_check():
 
 app.include_router(auth.router)
 app.include_router(rooms.router)
+app.include_router(bookings.router)

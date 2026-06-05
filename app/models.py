@@ -150,76 +150,26 @@ class RoomSlot(Base):
 class Booking(Base):
     __tablename__ = "bookings"
 
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    room_id = Column(Integer, ForeignKey("rooms.id"), nullable=False)
+    slot_id = Column(Integer, ForeignKey("room_slots.id"), nullable=False)
+    booking_date = Column(Date, nullable=False)
+    status = Column(Enum(BookingStatus), nullable=False, default=BookingStatus.active)
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    cancelled_at = Column(DateTime, nullable=True)
 
-    id: Mapped[int] = mapped_column(
-        Integer,
-        primary_key=True,
-    )
+    user = relationship("User", back_populates="bookings")
+    room = relationship("Room", back_populates="bookings")
+    slot = relationship("RoomSlot", back_populates="bookings")
 
-
-    user_id: Mapped[int] = mapped_column(
-        ForeignKey("users.id"),
-    )
-
-
-    room_id: Mapped[int] = mapped_column(
-        ForeignKey("rooms.id"),
-    )
-
-
-    slot_id: Mapped[int] = mapped_column(
-        ForeignKey("room_slots.id"),
-    )
-
-
-    booking_date: Mapped[Date] = mapped_column(
-        Date,
-        nullable=False,
-    )
-
-
-    status: Mapped[BookingStatus] = mapped_column(
-        Enum(BookingStatus),
-        default=BookingStatus.active,
-    )
-
-
-    created_at: Mapped[DateTime] = mapped_column(
-        DateTime,
-        server_default=func.now(),
-    )
-
-
-    cancelled_at: Mapped[DateTime | None] = mapped_column(
-        DateTime,
-        nullable=True,
-    )
-
-
-    user = relationship(
-        "User",
-        back_populates="bookings",
-    )
-
-
-    room = relationship(
-        "Room",
-        back_populates="bookings",
-    )
-
-
-    slot = relationship(
-        "RoomSlot",
-        back_populates="bookings",
-    )
-
-Index(
-    "uq_active_booking_room_slot_date",
-    Booking.room_id,
-    Booking.slot_id,
-    Booking.booking_date,
-    unique=True,
-    postgresql_where=text(
-        "status = 'active'"
+__table_args__ = (
+    Index(
+        "uq_active_booking_room_slot_date",
+        "room_id",
+        "slot_id",
+        "booking_date",
+        unique=True,
+        postgresql_where=text("status = 'active'"),
     ),
 )

@@ -1,4 +1,4 @@
-from datetime import time
+from datetime import time, date, datetime
 from pydantic import BaseModel, Field
 
 
@@ -56,3 +56,22 @@ class RoomAvailabilityRead(BaseModel):
     room_id: int
     room_name: str
     slots: list[AvailabilitySlotRead]
+
+class BookingCreate(BaseModel):
+    room_id: int
+    slot_id: int
+    booking_date: date
+
+
+class BookingRead(BaseModel):
+    id: int
+    user_id: int
+    room_id: int
+    slot_id: int
+    booking_date: date
+    status: str
+    created_at: datetime
+    cancelled_at: datetime | None = None
+
+    class Config:
+        from_attributes = True
