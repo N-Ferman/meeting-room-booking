@@ -4,9 +4,9 @@ from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 
 from app.database import SessionLocal
-from app.models import User
+from app.models import User, UserRole
 from app.security import decode_access_token
-from app.models import UserRole
+
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/token")
 
@@ -46,6 +46,7 @@ def get_current_user(
 
     return user
 
+
 def require_admin(
     current_user: User = Depends(get_current_user),
 ) -> User:
@@ -56,11 +57,3 @@ def require_admin(
         )
 
     return current_user
-
-@router.post("/rooms")
-def create_room(
-    room_data: RoomCreate,
-    current_user: User = Depends(require_admin),
-    db: Session = Depends(get_db),
-):
-    ...
