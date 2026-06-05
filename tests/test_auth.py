@@ -1,4 +1,4 @@
-def test_login_success(client):
+def test_login_success(client, employee_user):
     response = client.post(
         "/auth/token",
         data={
